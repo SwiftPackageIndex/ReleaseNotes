@@ -9,6 +9,9 @@ let package = Package(
         .macOS(.v12)
     ],
     dependencies: [
+        .package(name: "SemanticVersion",
+                 url: "https://github.com/SwiftPackageIndex/SemanticVersion",
+                 from: "0.3.1"),
         .package(name: "swift-argument-parser",
                  url: "https://github.com/apple/swift-argument-parser",
                  from: "1.0.0"),
@@ -24,7 +27,8 @@ let package = Package(
             name: "ReleaseNotesCore",
             dependencies: [
                 .product(name: "ArgumentParser", package: "swift-argument-parser"),
-                .product(name: "Parsing", package: "swift-parsing")
+                .product(name: "Parsing", package: "swift-parsing"),
+                "SemanticVersion"
             ]),
         .testTarget(
             name: "ReleaseNotesCoreTests",

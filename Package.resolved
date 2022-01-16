@@ -2,6 +2,15 @@
   "object": {
     "pins": [
       {
+        "package": "SemanticVersion",
+        "repositoryURL": "https://github.com/SwiftPackageIndex/SemanticVersion",
+        "state": {
+          "branch": null,
+          "revision": "97f2bd0551cde27717c5ab7b88e23d392e96452b",
+          "version": "0.3.1"
+        }
+      },
+      {
         "package": "swift-argument-parser",
         "repositoryURL": "https://github.com/apple/swift-argument-parser",
         "state": {
