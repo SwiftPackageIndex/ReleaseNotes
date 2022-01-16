@@ -4,6 +4,9 @@ import Foundation
 
 struct ReleaseNotes: AsyncParsableCommand {
 
+    @Argument
+    var workingDirecory: String = "."
+
     func runAsync() async throws {
         guard let output = try runPackageUpdate() else {
             print("Package update did not return any changes.")
@@ -40,12 +43,10 @@ struct ReleaseNotes: AsyncParsableCommand {
 
     func updateProcess() -> Process {
         let process = Process()
-        process.executableURL = URL(fileURLWithPath: "/usr/bin/xcrun")
+        process.executableURL = URL(fileURLWithPath: "/bin/bash")
         process.arguments = [
-            "swift",
-            "package",
-            "update",
-            "--dry-run"
+            "-c",
+            #"cd "\#(workingDirecory)" && swift package update --dry-run"#,
         ]
         return process
     }
