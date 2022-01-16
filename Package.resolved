@@ -9,6 +9,15 @@
           "revision": "e1465042f195f374b94f915ba8ca49de24300a0d",
           "version": "1.0.2"
         }
+      },
+      {
+        "package": "swift-parsing",
+        "repositoryURL": "https://github.com/pointfreeco/swift-parsing",
+        "state": {
+          "branch": null,
+          "revision": "b91a41bb54660cafbcd2d1b19328b9d86f92c80e",
+          "version": "0.4.1"
+        }
       }
     ]
   },

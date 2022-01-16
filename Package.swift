@@ -11,7 +11,10 @@ let package = Package(
     dependencies: [
         .package(name: "swift-argument-parser",
                  url: "https://github.com/apple/swift-argument-parser",
-                 from: "1.0.0")
+                 from: "1.0.0"),
+        .package(name: "swift-parsing",
+                 url: "https://github.com/pointfreeco/swift-parsing", 
+                 from: "0.4.1")
     ],
     targets: [
         .executableTarget(
@@ -21,6 +24,7 @@ let package = Package(
             name: "ReleaseNotesCore",
             dependencies: [
                 .product(name: "ArgumentParser", package: "swift-argument-parser"),
+                .product(name: "Parsing", package: "swift-parsing")
             ]),
         .testTarget(
             name: "ReleaseNotesCoreTests",
