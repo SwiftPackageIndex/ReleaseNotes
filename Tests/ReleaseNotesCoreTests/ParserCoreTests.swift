@@ -4,6 +4,48 @@ import XCTest
 
 final class ParserCoreTests: XCTestCase {
 
+    func test_progress() throws {
+        do {
+            var input = "Updating https://github.com/pointfreeco/swift-parsing"[...]
+            XCTAssertNotNil(Parser.progress.parse(&input))
+            XCTAssertEqual(input, "")
+        }
+        do {
+            var input = "Updated https://github.com/apple/swift-argument-parser (0.81s)"[...]
+            XCTAssertNotNil(Parser.progress.parse(&input))
+            XCTAssertEqual(input, "")
+        }
+        do {
+            var input = "Computing version for https://github.com/pointfreeco/swift-parsing"[...]
+            XCTAssertNotNil(Parser.progress.parse(&input))
+            XCTAssertEqual(input, "")
+        }
+        do {
+            var input = "Computed https://github.com/pointfreeco/swift-parsing at 0.4.1 (0.02s)"[...]
+            XCTAssertNotNil(Parser.progress.parse(&input))
+            XCTAssertEqual(input, "")
+        }
+    }
+
+    func test_anyProgress() throws {
+        var input = """
+            Updating https://github.com/pointfreeco/swift-parsing
+            Updating https://github.com/apple/swift-argument-parser
+            Updating https://github.com/SwiftPackageIndex/SemanticVersion
+            Updated https://github.com/apple/swift-argument-parser (0.81s)
+            Updated https://github.com/pointfreeco/swift-parsing (0.81s)
+            Updated https://github.com/SwiftPackageIndex/SemanticVersion (0.81s)
+            Computing version for https://github.com/pointfreeco/swift-parsing
+            Computed https://github.com/pointfreeco/swift-parsing at 0.4.1 (0.02s)
+            Computing version for https://github.com/SwiftPackageIndex/SemanticVersion
+            Computed https://github.com/SwiftPackageIndex/SemanticVersion at 0.3.1 (0.01s)
+            Computing version for https://github.com/apple/swift-argument-parser
+            Computed https://github.com/apple/swift-argument-parser at 1.0.2 (0.01s)
+            """[...]
+        XCTAssertNotNil(Parser.anyProgress.parse(&input))
+        XCTAssertEqual(input, "")
+    }
+
     func test_dependencyCount() throws {
         do {
             var input = "1 dependency has changed:"[...]
@@ -13,6 +55,11 @@ final class ParserCoreTests: XCTestCase {
         do {
             var input = "12 dependencies have changed:"[...]
             XCTAssertEqual(Parser.dependencyCount.parse(&input), 12)
+            XCTAssertEqual(input, "")
+        }
+        do {
+            var input = "0 dependencies have changed."[...]
+            XCTAssertEqual(Parser.dependencyCount.parse(&input), 0)
             XCTAssertEqual(input, "")
         }
     }
@@ -87,7 +134,8 @@ final class ParserCoreTests: XCTestCase {
     }
 
     func test_packageUpdate() throws {
-        var input = """
+        do {
+            var input = """
             10 dependencies have changed:
             ~ swift-tools-support-core main -> swift-tools-support-core Revision(identifier: "4afd18e40eb028cd9fbe7342e3f98020ea9fdf1a") main
             ~ vapor 4.54.0 -> vapor 4.54.1
@@ -100,7 +148,34 @@ final class ParserCoreTests: XCTestCase {
             ~ swift-nio 2.36.0 -> swift-nio 2.37.0
             ~ llbuild main -> llbuild Revision(identifier: "db8311d7d284cae487dff582de980db5a918692f") main
             """[...]
-        XCTAssertEqual(Parser.packageUpdate.parse(&input)?.count, 10)
+            XCTAssertEqual(Parser.packageUpdate.parse(&input)?.count, 10)
+        }
+        do {
+            var input = """
+
+            0 dependencies have changed.
+            """[...]
+            XCTAssertEqual(Parser.packageUpdate.parse(&input)?.count, 0)
+        }
+        do {
+            var input = """
+            Updating https://github.com/pointfreeco/swift-parsing
+            Updating https://github.com/apple/swift-argument-parser
+            Updating https://github.com/SwiftPackageIndex/SemanticVersion
+            Updated https://github.com/apple/swift-argument-parser (0.81s)
+            Updated https://github.com/pointfreeco/swift-parsing (0.81s)
+            Updated https://github.com/SwiftPackageIndex/SemanticVersion (0.81s)
+            Computing version for https://github.com/pointfreeco/swift-parsing
+            Computed https://github.com/pointfreeco/swift-parsing at 0.4.1 (0.02s)
+            Computing version for https://github.com/SwiftPackageIndex/SemanticVersion
+            Computed https://github.com/SwiftPackageIndex/SemanticVersion at 0.3.1 (0.01s)
+            Computing version for https://github.com/apple/swift-argument-parser
+            Computed https://github.com/apple/swift-argument-parser at 1.0.2 (0.01s)
+
+            0 dependencies have changed.
+            """[...]
+            XCTAssertEqual(Parser.packageUpdate.parse(&input)?.count, 0)
+        }
     }
 
 }

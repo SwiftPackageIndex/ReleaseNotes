@@ -5,8 +5,19 @@ import Darwin
 
 enum Parser {
 
+    static let progress = Skip(
+        "Updating".orElse("Updated").orElse("Computing").orElse("Computed")
+    )
+        .skip(Prefix { $0 != "\n"})
+
+    static let anyProgress = Many(progress, separator: "\n")
+
     static let dependencyCount = Int.parser()
-        .skip(" dependency has changed:".orElse(" dependencies have changed:"))
+        .skip(
+            " dependency has changed:"
+                .orElse(" dependencies have changed:")
+                .orElse(" dependencies have changed.")
+        )
 
     static let semanticVersion = Prefix(while: { $0 != " " })
         .flatMap { str -> Conditional<Always<Substring, SemanticVersion>, Fail<Substring, SemanticVersion>> in
@@ -34,7 +45,9 @@ enum Parser {
 
     static let updates = Many(update, separator: "\n")
 
-    static let packageUpdate = dependencyCount
+    static let packageUpdate = Skip(anyProgress)
+        .skip(Many("\n"))
+        .take(dependencyCount)
         .take(updates)
         .map { (count, updates) -> [Update] in
             assert(updates.count == count)
