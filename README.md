@@ -21,3 +21,10 @@ https://github.com/apple/swift-nio-transport-services/releases (1.11.3)
 https://github.com/apple/swift-driver/releases (main)
 https://github.com/apple/swift-nio/releases (2.36.0)
 ```
+
+##
+
+To install:
+
+- clone this repository
+- run `make install` to build and install the executable in `/usr/local/bin`
