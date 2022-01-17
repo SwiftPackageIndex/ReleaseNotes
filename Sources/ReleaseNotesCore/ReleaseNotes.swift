@@ -34,11 +34,21 @@ struct ReleaseNotes: AsyncParsableCommand {
         let pipe = Pipe()
         process.standardOutput = pipe
 
+        let queue = DispatchQueue(label: "stdout-queue")
+        var stdout = ""
+        pipe.fileHandleForReading.readabilityHandler = { handler in
+            if let str = String(data: handler.availableData, encoding: .utf8) {
+                print(str, terminator: "")
+                queue.async {
+                    stdout += str
+                }
+            }
+        }
+
         try process.run()
         process.waitUntilExit()
 
-        let data = pipe.fileHandleForReading.readDataToEndOfFile()
-        return String(data: data, encoding: .utf8)
+        return stdout
     }
 
     func updateProcess() -> Process {
