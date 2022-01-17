@@ -41,7 +41,7 @@ enum Parser {
         .take(revision)
         .skip(" -> ")
         .skip(Prefix { $0 != "\n" })
-        .map(Update.init(dependency:oldRevision:))
+        .map(Update.init(packageName:oldRevision:))
 
     static let updates = Many(update, separator: "\n")
 

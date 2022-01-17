@@ -1,8 +1,8 @@
 struct Update: CustomStringConvertible, Equatable {
-    var dependency: String
+    var packageName: PackageName
     var oldRevision: Revision
 
     var description: String {
-        "\(dependency) @ \(oldRevision)"
+        "\(packageName) @ \(oldRevision)"
     }
 }
