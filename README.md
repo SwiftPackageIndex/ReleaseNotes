@@ -1,11 +1,13 @@
-# spi-release-notes
+# swift-release-notes
 
-`release-notes` is a Swift script that creates a list of links to release notes for package updates.
+`swift-release-notes` is a Swift script that creates a list of links to release notes for package updates.
 
-Running `release-notes` performs a `swift package update --dry-run` to find package updates and creates release notes URLs for these updates:
+Running `swift release-notes` performs a `swift package update --dry-run` to find package updates and creates release notes URLs for these updates:
+
+(Note that executables named with a `swift-` prefix can be called via `swift ...`, making them appear like `swift` subcommands.)
 
 ```
-$ release-notes ~/Projects/SPI/spi-server
+$ swift release-notes ~/Projects/SPI/spi-server
 
 (... progress output removed)
 

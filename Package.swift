@@ -4,7 +4,7 @@
 import PackageDescription
 
 let package = Package(
-    name: "spi-release-notes",
+    name: "swift-release-notes",
     platforms: [
         .macOS(.v12)
     ],
@@ -21,7 +21,7 @@ let package = Package(
     ],
     targets: [
         .executableTarget(
-            name: "release-notes",
+            name: "swift-release-notes",
             dependencies: ["ReleaseNotesCore"]),
         .target(
             name: "ReleaseNotesCore",
