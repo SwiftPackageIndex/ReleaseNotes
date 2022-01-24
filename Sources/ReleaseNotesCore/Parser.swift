@@ -6,7 +6,12 @@ import Darwin
 enum Parser {
 
     static let progress = Skip(
-        "Updating".orElse("Updated").orElse("Computing").orElse("Computed")
+        "Updating"
+            .orElse("Updated")
+            .orElse("Computing")
+            .orElse("Computed")
+            .orElse("Creating working copy")
+            .orElse("Working copy of")
     )
         .skip(Prefix { $0 != "\n"})
 

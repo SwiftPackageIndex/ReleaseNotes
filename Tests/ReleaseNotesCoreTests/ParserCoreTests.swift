@@ -25,6 +25,16 @@ final class ParserCoreTests: XCTestCase {
             XCTAssertNotNil(Parser.progress.parse(&input))
             XCTAssertEqual(input, "")
         }
+        do {
+            var input = "Creating working copy for https://github.com/JohnSundell/Plot.git"[...]
+            XCTAssertNotNil(Parser.progress.parse(&input))
+            XCTAssertEqual(input, "")
+        }
+        do {
+            var input = "Working copy of https://github.com/JohnSundell/Plot.git resolved at 0.10.0"[...]
+            XCTAssertNotNil(Parser.progress.parse(&input))
+            XCTAssertEqual(input, "")
+        }
     }
 
     func test_anyProgress() throws {
@@ -41,6 +51,8 @@ final class ParserCoreTests: XCTestCase {
             Computed https://github.com/SwiftPackageIndex/SemanticVersion at 0.3.1 (0.01s)
             Computing version for https://github.com/apple/swift-argument-parser
             Computed https://github.com/apple/swift-argument-parser at 1.0.2 (0.01s)
+            Creating working copy for https://github.com/JohnSundell/Plot.git
+            Working copy of https://github.com/JohnSundell/Plot.git resolved at 0.10.0
             """[...]
         XCTAssertNotNil(Parser.anyProgress.parse(&input))
         XCTAssertEqual(input, "")

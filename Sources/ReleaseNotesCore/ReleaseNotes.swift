@@ -22,8 +22,8 @@ struct ReleaseNotes: AsyncParsableCommand {
         }
 
         guard let updates = Parser.packageUpdate.parse(output) else {
-            print("Failed to parse results from package update:\n")
-            print(output)
+            print("Failed to parse results from package update.\n")
+            print("Please file an issue with the the output above.")
             return
         }
 
