@@ -6,7 +6,10 @@ import PackageDescription
 let package = Package(
     name: "swift-release-notes",
     platforms: [
-        .macOS(.v12)
+        .macOS(.v11),
+    ],
+    products: [
+        .executable(name: "swift-release-notes", targets: ["swift-release-notes"]),
     ],
     dependencies: [
         .package(name: "SemanticVersion",
@@ -16,22 +19,25 @@ let package = Package(
                  url: "https://github.com/apple/swift-argument-parser",
                  from: "1.0.0"),
         .package(name: "swift-parsing",
-                 url: "https://github.com/pointfreeco/swift-parsing", 
-                 from: "0.4.1")
+                 url: "https://github.com/pointfreeco/swift-parsing",
+                 from: "0.4.1"),
     ],
     targets: [
         .executableTarget(
             name: "swift-release-notes",
-            dependencies: ["ReleaseNotesCore"]),
+            dependencies: ["ReleaseNotesCore"]
+        ),
         .target(
             name: "ReleaseNotesCore",
             dependencies: [
                 .product(name: "ArgumentParser", package: "swift-argument-parser"),
                 .product(name: "Parsing", package: "swift-parsing"),
-                "SemanticVersion"
-            ]),
+                "SemanticVersion",
+            ]
+        ),
         .testTarget(
             name: "ReleaseNotesCoreTests",
-            dependencies: ["ReleaseNotesCore"]),
+            dependencies: ["ReleaseNotesCore"]
+        ),
     ]
 )
