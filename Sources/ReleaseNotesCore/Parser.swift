@@ -1,6 +1,5 @@
 import Parsing
 import SemanticVersion
-import Darwin
 
 
 enum Parser {

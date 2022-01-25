@@ -1,9 +1,8 @@
 import ArgumentParser
 
 
-@main
-struct App {
-    static func main() async {
+public struct App {
+    public static func main() async {
         await ReleaseNotes.main()
     }
 }
