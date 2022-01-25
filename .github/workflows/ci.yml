@@ -5,39 +5,40 @@ on:
     branches: [ '*' ]
     pull_request: [ main ]
 
+strategy:
+  fail-fast: false
+  matrix:
+    os: [macos-11, ubuntu-20.04]
+
 jobs:
-  strategy:
-    matrix:
-      os: [macos-11, ubuntu-20.04]
+  build:
+    runs-on: ${{ matrix.os }}
+    env:
+      DEVELOPER_DIR: /Applications/Xcode_13.2.1.app/Contents/Developer
 
-    build:
-      runs-on: ${{ matrix.os }}
-      env:
-        DEVELOPER_DIR: /Applications/Xcode_13.2.1.app/Contents/Developer
+    steps:
+    - uses: actions/checkout@v2
+    - name: Release Build
+      run: make build
 
-      steps:
-      - uses: actions/checkout@v2
-      - name: Release Build
-        run: make build
+  test:
+    runs-on: ${{ matrix.os }}
+    env:
+      DEVELOPER_DIR: /Applications/Xcode_13.2.1.app/Contents/Developer
 
-    test:
-      runs-on: ${{ matrix.os }}
-      env:
-        DEVELOPER_DIR: /Applications/Xcode_13.2.1.app/Contents/Developer
+    steps:
+    - uses: actions/checkout@v2
+    - name: Test
+      run: make test
 
-      steps:
-      - uses: actions/checkout@v2
-      - name: Test
-        run: make test
+  install:
+    runs-on: ${{ matrix.os }}
+    env:
+      DEVELOPER_DIR: /Applications/Xcode_13.2.1.app/Contents/Developer
 
-    install:
-      runs-on: ${{ matrix.os }}
-      env:
-        DEVELOPER_DIR: /Applications/Xcode_13.2.1.app/Contents/Developer
-
-      steps:
-      - uses: actions/checkout@v2
-      - name: Install
-        run: make install
-      - name: Uninstall
-        run: make uninstall
+    steps:
+    - uses: actions/checkout@v2
+    - name: Install
+      run: make install
+    - name: Uninstall
+      run: make uninstall
