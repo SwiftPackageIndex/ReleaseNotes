@@ -24,9 +24,23 @@ https://github.com/apple/swift-driver/releases (main)
 https://github.com/apple/swift-nio/releases (2.36.0)
 ```
 
-##
+## Installation
+### Using [Mint](https://github.com/yonaskolb/mint)
 
-To install:
+```
+$ mint install SwiftPackageIndex/ReleaseNotes
+```
 
-- clone this repository
-- run `make install` to build and install the executable in `/usr/local/bin`
+### Installing from source
+
+You can also build and install from source by cloning this project and running
+`make install` (macOS 11 or later).
+
+Manually
+Run the following commands to build and install manually:
+
+```
+$ git clone https://github.com/SwiftPackageIndex/ReleaseNotes.git
+$ cd ReleaseNotes
+$ make install
+```
