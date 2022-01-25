@@ -1,5 +1,8 @@
 # swift-release-notes
 
+[![](https://img.shields.io/endpoint?url=https%3A%2F%2Fswiftpackageindex.com%2Fapi%2Fpackages%2FSwiftPackageIndex%2FReleaseNotes%2Fbadge%3Ftype%3Dswift-versions)](https://swiftpackageindex.com/SwiftPackageIndex/ReleaseNotes)
+[![](https://img.shields.io/endpoint?url=https%3A%2F%2Fswiftpackageindex.com%2Fapi%2Fpackages%2FSwiftPackageIndex%2FReleaseNotes%2Fbadge%3Ftype%3Dplatforms)](https://swiftpackageindex.com/SwiftPackageIndex/ReleaseNotes)
+
 `swift-release-notes` is a Swift script that creates a list of links to release notes for package updates.
 
 Running `swift release-notes` performs a `swift package update --dry-run` to find package updates and creates release notes URLs for these updates:
