@@ -34,7 +34,7 @@ $ mint install SwiftPackageIndex/ReleaseNotes
 ### Installing from source
 
 You can also build and install from source by cloning this project and running
-`make install` (macOS 11 or later).
+`make install` (macOS 11 or later | Linux).
 
 Manually
 Run the following commands to build and install manually:
