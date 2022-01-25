@@ -49,6 +49,6 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - name: Install
-      run: make install
+      run: env prefix=/tmp make install
     - name: Uninstall
-      run: make uninstall
+      run: env prefix=/tmp make uninstall
