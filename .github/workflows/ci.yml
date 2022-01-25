@@ -5,13 +5,13 @@ on:
     branches: [ '*' ]
     pull_request: [ main ]
 
-strategy:
-  fail-fast: false
-  matrix:
-    os: [macos-11, ubuntu-20.04]
-
 jobs:
   build:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [macos-11, ubuntu-20.04]
+
     runs-on: ${{ matrix.os }}
     env:
       DEVELOPER_DIR: /Applications/Xcode_13.2.1.app/Contents/Developer
@@ -22,6 +22,11 @@ jobs:
       run: make build
 
   test:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [macos-11, ubuntu-20.04]
+
     runs-on: ${{ matrix.os }}
     env:
       DEVELOPER_DIR: /Applications/Xcode_13.2.1.app/Contents/Developer
@@ -32,6 +37,11 @@ jobs:
       run: make test
 
   install:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [macos-11, ubuntu-20.04]
+
     runs-on: ${{ matrix.os }}
     env:
       DEVELOPER_DIR: /Applications/Xcode_13.2.1.app/Contents/Developer
