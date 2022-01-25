@@ -26,7 +26,7 @@ swift-release-notes: $(SOURCES)
 .PHONY: install
 install: swift-release-notes
 	@install -d "$(bindir)"
-	@install "$(wildcard $(BUILDDIR)/**/release/swift-release-notes)" "$(bindir)"
+	@install "$(shell swift build -c release --show-bin-path)/swift-release-notes" "$(bindir)"
 
 .PHONY: uninstall
 uninstall:
