@@ -36,7 +36,7 @@ let package = Package(
             ]
         ),
         .testTarget(
-            name: "ReleaseNotesCoreTests",
+            name: "ReleaseNotesTests",
             dependencies: ["ReleaseNotesCore"]
         ),
     ]

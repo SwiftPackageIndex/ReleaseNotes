@@ -7,17 +7,27 @@ on:
 
 jobs:
   build:
-    runs-on: macos-11
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [macos-11, ubuntu-20.04]
+
+    runs-on: ${{ matrix.os }}
     env:
       DEVELOPER_DIR: /Applications/Xcode_13.2.1.app/Contents/Developer
 
     steps:
     - uses: actions/checkout@v2
-    - name: Build
+    - name: Release Build
       run: make build
 
   test:
-    runs-on: macos-11
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [macos-11, ubuntu-20.04]
+
+    runs-on: ${{ matrix.os }}
     env:
       DEVELOPER_DIR: /Applications/Xcode_13.2.1.app/Contents/Developer
 
@@ -27,13 +37,18 @@ jobs:
       run: make test
 
   install:
-    runs-on: macos-11
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [macos-11, ubuntu-20.04]
+
+    runs-on: ${{ matrix.os }}
     env:
       DEVELOPER_DIR: /Applications/Xcode_13.2.1.app/Contents/Developer
 
     steps:
     - uses: actions/checkout@v2
     - name: Install
-      run: make install
+      run: env prefix=/tmp make install
     - name: Uninstall
-      run: make uninstall
+      run: env prefix=/tmp make uninstall
