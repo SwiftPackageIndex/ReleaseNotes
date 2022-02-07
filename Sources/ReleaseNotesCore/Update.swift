@@ -14,9 +14,13 @@
 
 struct Update: CustomStringConvertible, Equatable {
     var packageName: PackageName
-    var oldRevision: Revision
+    var oldRevision: Revision?
 
     var description: String {
-        "\(packageName) @ \(oldRevision)"
+        if let oldRevision = oldRevision {
+            return "\(packageName) @ \(oldRevision)"
+        } else {
+            return "\(packageName) (new package)"
+        }
     }
 }

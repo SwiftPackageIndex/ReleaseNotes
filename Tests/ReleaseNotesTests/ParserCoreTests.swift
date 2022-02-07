@@ -90,6 +90,24 @@ final class ParserCoreTests: XCTestCase {
         }
     }
 
+    func test_upToStart() throws {
+        do {
+            var input = "~ foo"[...]
+            XCTAssertNotNil(Parser.upToStart.parse(&input))
+            XCTAssertEqual(input, "~ foo")
+        }
+        do {
+            var input = "+ foo"[...]
+            XCTAssertNotNil(Parser.upToStart.parse(&input))
+            XCTAssertEqual(input, "+ foo")
+        }
+        do {
+            var input = "other"[...]
+            XCTAssertNotNil(Parser.upToStart.parse(&input))
+            XCTAssertEqual(input, "")
+        }
+    }
+
     func test_semanticVersion() throws {
         do {
             var input = "1.2.3"[...]
@@ -118,23 +136,85 @@ final class ParserCoreTests: XCTestCase {
         }
     }
 
+    func test_newPackage() throws {
+        do {
+            var input = "+ swift-collections 1.0.2"[...]
+            XCTAssertEqual(Parser.newPackage.parse(&input), .init(packageName: "swift-collections"))
+            XCTAssertEqual(input, "")
+        }
+        do {
+            var input = "~ swift-collections 1.0.2"[...]
+            XCTAssertNil(Parser.newPackage.parse(&input))
+            XCTAssertEqual(input, "~ swift-collections 1.0.2")
+        }
+    }
+
     func test_update() throws {
         do {
             var input = #"~ swift-tools-support-core main -> swift-tools-support-core Revision(identifier: "4afd18e40eb028cd9fbe7342e3f98020ea9fdf1a") main"#[...]
             XCTAssertEqual(Parser.update.parse(&input),
                            .init(packageName: "swift-tools-support-core",
                                  oldRevision: .branch("main")))
+            XCTAssertEqual(input, "")
         }
         do {
             var input = #"~ vapor 4.54.0 -> vapor 4.54.1"#[...]
             XCTAssertEqual(Parser.update.parse(&input),
                            .init(packageName: "vapor",
                                  oldRevision: .tag(.init(4, 54, 0))))
+            XCTAssertEqual(input, "")
+        }
+        do {
+            var input = "+ swift-collections 1.0.2"[...]
+            XCTAssertEqual(Parser.update.parse(&input),
+                           .init(packageName: "swift-collections"))
+            XCTAssertEqual(input, "")
         }
     }
 
     func test_updates() throws {
+        do {
+            var input = #"~ vapor 4.54.0 -> vapor 4.54.1"#[...]
+            XCTAssertEqual(Parser.updates.parse(&input),
+                           [.init(packageName: "vapor",
+                                 oldRevision: .tag(.init(4, 54, 0)))])
+            XCTAssertEqual(input, "")
+        }
+        do {
+            var input = "+ swift-collections 1.0.2"[...]
+            XCTAssertEqual(Parser.updates.parse(&input),
+                           [.init(packageName: "swift-collections")])
+            XCTAssertEqual(input, "")
+        }
+        do {
+            var input = """
+            ~ vapor 4.54.0 -> vapor 4.54.1
+            + swift-collections 1.0.2
+            """[...]
+
+            XCTAssertEqual(Parser.updates.parse(&input),
+                           [.init(packageName: "vapor",
+                                  oldRevision: .tag(.init(4, 54, 0))),
+                            .init(packageName: "swift-collections")])
+            XCTAssertEqual(input, "")
+        }
+        do {
+            var input = """
+            + swift-collections 1.0.2
+            ~ vapor 4.54.0 -> vapor 4.54.1
+            """[...]
+
+            XCTAssertEqual(Parser.updates.parse(&input),
+                           [.init(packageName: "swift-collections"),
+                            .init(packageName: "vapor",
+                                  oldRevision: .tag(.init(4, 54, 0)))])
+            XCTAssertEqual(input, "")
+        }
+    }
+
+    func test_updates_full_list() throws {
         var input = """
+            + swift-collections 1.0.2
             ~ swift-tools-support-core main -> swift-tools-support-core Revision(identifier: "4afd18e40eb028cd9fbe7342e3f98020ea9fdf1a") main
             ~ vapor 4.54.0 -> vapor 4.54.1
             ~ swift-nio-ssl 2.17.1 -> swift-nio-ssl 2.17.2
@@ -147,6 +227,7 @@ final class ParserCoreTests: XCTestCase {
             ~ llbuild main -> llbuild Revision(identifier: "db8311d7d284cae487dff582de980db5a918692f") main
             """[...]
         XCTAssertEqual(Parser.updates.parse(&input), [
+            .init(packageName: "swift-collections"),
             .init(packageName: "swift-tools-support-core", oldRevision: .branch("main")),
             .init(packageName: "vapor", oldRevision: .tag(.init(4, 54, 0))),
             .init(packageName: "swift-nio-ssl", oldRevision: .tag(.init(2, 17, 1))),
@@ -158,6 +239,7 @@ final class ParserCoreTests: XCTestCase {
             .init(packageName: "swift-nio", oldRevision: .tag(.init(2, 36, 0))),
             .init(packageName: "llbuild", oldRevision: .branch("main")),
         ])
+        XCTAssertEqual(input, "")
     }
 
     func test_packageUpdate() throws {
@@ -203,6 +285,19 @@ final class ParserCoreTests: XCTestCase {
             """[...]
             XCTAssertEqual(Parser.packageUpdate.parse(&input)?.count, 0)
         }
+    }
+
+    func test_regression_new_package() throws {
+        var input = """
+        6 dependencies have changed:
+        + swift-collections 1.0.2
+        ~ fluent-postgres-driver 2.2.2 -> fluent-postgres-driver 2.2.3
+        ~ swift-driver main -> swift-driver Revision(identifier: "a034b0bc0cc1366e289e25e00b3e0b21089c98fe") main
+        ~ swift-tools-support-core main -> swift-tools-support-core Revision(identifier: "d318eaafe60f20be0f0bbc658793f64bf83847d8") main
+        ~ swift-argument-parser 1.0.2 -> swift-argument-parser 1.0.3
+        ~ SwiftPM main -> SwiftPM Revision(identifier: "658654765f5a7dfb3456c37dafd3ed8cd8b363b4") main
+        """[...]
+        XCTAssertEqual(Parser.packageUpdate.parse(&input)?.count, 6)
     }
 
 }
