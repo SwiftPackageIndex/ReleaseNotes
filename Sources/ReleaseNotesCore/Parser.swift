@@ -50,16 +50,26 @@ enum Parser {
     static let revision = semanticVersion
         .orElse(Prefix { $0 != " " }.map { .branch(String($0)) })
 
-    static let upToTwiddle = Prefix { $0 != "~" }
+    static let newPackageToken: Character = "+"
+    static let updatedRevisionToken: Character = "~"
+    static let upToStart = Prefix { $0 != newPackageToken && $0 != updatedRevisionToken }
 
-    static let update = Skip(upToTwiddle)
-        .skip("~ ")
+    static let newPackage = Skip(upToStart)
+        .skip("\(newPackageToken) ")
+        .take(Prefix { $0 != " " }.map(String.init))
+        .skip(Prefix { $0 != "\n" })
+        .map { Update(packageName: $0, oldRevision: nil) }
+
+    static let updatedRevision = Skip(upToStart)
+        .skip("\(updatedRevisionToken) ")
         .take(Prefix { $0 != " " }.map(String.init))
         .skip(" ")
         .take(revision)
         .skip(" -> ")
         .skip(Prefix { $0 != "\n" })
         .map(Update.init(packageName:oldRevision:))
+
+    static let update = updatedRevision.orElse(newPackage)
 
     static let updates = Many(update, separator: "\n")
 
