@@ -51,7 +51,7 @@ struct ReleaseNotes: AsyncParsableCommand {
             let releasesURL = packageMap[update.packageName]
                 .map { $0.absoluteString.droppingGitExtension + "/releases" }
             ?? "could not construct releases URL"
-            print(releasesURL, "(\(update.oldRevision))")
+            print(releasesURL, "(\(update.oldRevision?.description ?? "new package"))")
         }
     }
 
