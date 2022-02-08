@@ -14,39 +14,40 @@
 
 @testable import ReleaseNotesCore
 import XCTest
+import Parsing
 
 
 final class ParserCoreTests: XCTestCase {
 
-    func test_progress() throws {
+    func test_progressLine() throws {
         do {
-            var input = "Updating https://github.com/pointfreeco/swift-parsing"[...]
-            XCTAssertNotNil(Parser.progress.parse(&input))
+            var input = "Updating https://github.com/pointfreeco/swift-parsing\n"[...]
+            XCTAssertNotNil(Parser.progressLine.parse(&input))
             XCTAssertEqual(input, "")
         }
         do {
-            var input = "Updated https://github.com/apple/swift-argument-parser (0.81s)"[...]
-            XCTAssertNotNil(Parser.progress.parse(&input))
+            var input = "Updated https://github.com/apple/swift-argument-parser (0.81s)\n"[...]
+            XCTAssertNotNil(Parser.progressLine.parse(&input))
             XCTAssertEqual(input, "")
         }
         do {
-            var input = "Computing version for https://github.com/pointfreeco/swift-parsing"[...]
-            XCTAssertNotNil(Parser.progress.parse(&input))
+            var input = "Computing version for https://github.com/pointfreeco/swift-parsing\n"[...]
+            XCTAssertNotNil(Parser.progressLine.parse(&input))
             XCTAssertEqual(input, "")
         }
         do {
-            var input = "Computed https://github.com/pointfreeco/swift-parsing at 0.4.1 (0.02s)"[...]
-            XCTAssertNotNil(Parser.progress.parse(&input))
+            var input = "Computed https://github.com/pointfreeco/swift-parsing at 0.4.1 (0.02s)\n"[...]
+            XCTAssertNotNil(Parser.progressLine.parse(&input))
             XCTAssertEqual(input, "")
         }
         do {
-            var input = "Creating working copy for https://github.com/JohnSundell/Plot.git"[...]
-            XCTAssertNotNil(Parser.progress.parse(&input))
+            var input = "Creating working copy for https://github.com/JohnSundell/Plot.git\n"[...]
+            XCTAssertNotNil(Parser.progressLine.parse(&input))
             XCTAssertEqual(input, "")
         }
         do {
-            var input = "Working copy of https://github.com/JohnSundell/Plot.git resolved at 0.10.0"[...]
-            XCTAssertNotNil(Parser.progress.parse(&input))
+            var input = "Working copy of https://github.com/JohnSundell/Plot.git resolved at 0.10.0\n"[...]
+            XCTAssertNotNil(Parser.progressLine.parse(&input))
             XCTAssertEqual(input, "")
         }
     }
@@ -67,8 +68,9 @@ final class ParserCoreTests: XCTestCase {
             Computed https://github.com/apple/swift-argument-parser at 1.0.2 (0.01s)
             Creating working copy for https://github.com/JohnSundell/Plot.git
             Working copy of https://github.com/JohnSundell/Plot.git resolved at 0.10.0
+
             """[...]
-        XCTAssertNotNil(Parser.anyProgress.parse(&input))
+        XCTAssertNotNil(Skip(Parser.progress).parse(&input))
         XCTAssertEqual(input, "")
     }
 
@@ -298,6 +300,18 @@ final class ParserCoreTests: XCTestCase {
         ~ SwiftPM main -> SwiftPM Revision(identifier: "658654765f5a7dfb3456c37dafd3ed8cd8b363b4") main
         """[...]
         XCTAssertEqual(Parser.packageUpdate.parse(&input)?.count, 6)
+    }
+
+    func test_progress_resilience() throws {
+        // Ensure random output before the dependency count line is ignored
+        var input = """
+            foo
+            bar
+            ~ something
+            1 dependency has changed:
+            ~ fluent-postgres-driver 2.2.2 -> fluent-postgres-driver 2.2.3
+            """[...]
+        XCTAssertEqual(Parser.packageUpdate.parse(&input)?.count, 1)
     }
 
 }
