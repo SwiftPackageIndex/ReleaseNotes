@@ -18,17 +18,11 @@ import SemanticVersion
 
 enum Parser {
 
-    static let progress = Skip(
-        "Updating"
-            .orElse("Updated")
-            .orElse("Computing")
-            .orElse("Computed")
-            .orElse("Creating working copy")
-            .orElse("Working copy of")
-    )
-        .skip(Prefix { $0 != "\n"})
+    static let dependencyStart = Int.parser().skip(" dependenc")
+    
+    static let progressLine = Not(dependencyStart).skip(PrefixThrough("\n"))
 
-    static let anyProgress = Many(progress, separator: "\n")
+    static let progress = Many(progressLine)
 
     static let dependencyCount = Int.parser()
         .skip(
@@ -73,7 +67,7 @@ enum Parser {
 
     static let updates = Many(update, separator: "\n")
 
-    static let packageUpdate = Skip(anyProgress)
+    static let packageUpdate = Skip(progress)
         .skip(Many("\n"))
         .take(dependencyCount)
         .take(updates)
@@ -81,5 +75,21 @@ enum Parser {
             assert(updates.count == count)
             return updates
         }
-    
+
+}
+
+
+struct Not<P>: Parsing.Parser where P: Parsing.Parser {
+    let parser: P
+
+    init(_ parser: P) { self.parser = parser }
+
+    func parse(_ input: inout P.Input) -> Void? {
+        let original = input
+        if parser.parse(&input) != nil {
+          input = original
+          return nil
+        }
+        return ()
+    }
 }
