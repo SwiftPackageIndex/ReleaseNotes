@@ -20,34 +20,22 @@ import Parsing
 final class ParserCoreTests: XCTestCase {
 
     func test_progressLine() throws {
-        do {
-            var input = "Updating https://github.com/pointfreeco/swift-parsing\n"[...]
-            try Parser.progressLine.parse(&input)
-        }
-        do {
-            var input = "Updated https://github.com/apple/swift-argument-parser (0.81s)\n"[...]
-            try Parser.progressLine.parse(&input)
-        }
-        do {
-            var input = "Computing version for https://github.com/pointfreeco/swift-parsing\n"[...]
-            try Parser.progressLine.parse(&input)
-        }
-        do {
-            var input = "Computed https://github.com/pointfreeco/swift-parsing at 0.4.1 (0.02s)\n"[...]
-            try Parser.progressLine.parse(&input)
-        }
-        do {
-            var input = "Creating working copy for https://github.com/JohnSundell/Plot.git\n"[...]
-            try Parser.progressLine.parse(&input)
-        }
-        do {
-            var input = "Working copy of https://github.com/JohnSundell/Plot.git resolved at 0.10.0\n"[...]
-            try Parser.progressLine.parse(&input)
-        }
+        try Parser.progressLine.parse(
+            "Updating https://github.com/pointfreeco/swift-parsing\n")
+        try Parser.progressLine.parse(
+            "Updated https://github.com/apple/swift-argument-parser (0.81s)\n")
+        try Parser.progressLine.parse(
+            "Computing version for https://github.com/pointfreeco/swift-parsing\n")
+        try Parser.progressLine.parse(
+            "Computed https://github.com/pointfreeco/swift-parsing at 0.4.1 (0.02s)\n")
+        try Parser.progressLine.parse(
+            "Creating working copy for https://github.com/JohnSundell/Plot.git\n")
+        try Parser.progressLine.parse(
+            "Working copy of https://github.com/JohnSundell/Plot.git resolved at 0.10.0\n")
     }
 
     func test_anyProgress() throws {
-        var input = """
+        let input = """
             Updating https://github.com/pointfreeco/swift-parsing
             Updating https://github.com/apple/swift-argument-parser
             Updating https://github.com/SwiftPackageIndex/SemanticVersion
@@ -63,54 +51,44 @@ final class ParserCoreTests: XCTestCase {
             Creating working copy for https://github.com/JohnSundell/Plot.git
             Working copy of https://github.com/JohnSundell/Plot.git resolved at 0.10.0
 
-            """[...]
-        try Skip { Parser.progress }.parse(&input)
+            """
+        try Skip { Parser.progress }.parse(input)
     }
 
     func test_dependencyCount() throws {
-        do {
-            var input = "1 dependency has changed:"[...]
-            XCTAssertEqual(try Parser.dependencyCount.parse(&input), 1)
-        }
-        do {
-            var input = "12 dependencies have changed:"[...]
-            XCTAssertEqual(try Parser.dependencyCount.parse(&input), 12)
-        }
-        do {
-            var input = "0 dependencies have changed."[...]
-            XCTAssertEqual(try Parser.dependencyCount.parse(&input), 0)
-        }
+        XCTAssertEqual(try Parser.dependencyCount.parse("1 dependency has changed:"), 1)
+        XCTAssertEqual(try Parser.dependencyCount.parse("12 dependencies have changed:"), 12)
+        XCTAssertEqual(try Parser.dependencyCount.parse("0 dependencies have changed."), 0)
     }
 
     func test_upToStart() throws {
         do {
+            // Ensure updated revisions are recognised and _not_ consumed
             var input = "~ foo"[...]
-            XCTAssertNotNil(try? Parser.upToStart.parse(&input))
+            XCTAssertNoThrow(try Parser.upToStart.parse(&input))
             XCTAssertEqual(input, "~ foo")
         }
         do {
+            // Ensure new packages are recognised and _not_ consumed
             var input = "+ foo"[...]
-            XCTAssertNotNil(try? Parser.upToStart.parse(&input))
+            XCTAssertNoThrow(try Parser.upToStart.parse(&input))
             XCTAssertEqual(input, "+ foo")
         }
         do {
-            XCTAssertNotNil(try Parser.upToStart.parse("other"))
+            // Ensure other output is recognised and consumed
+            var input = "other"[...]
+            XCTAssertNoThrow(try Parser.upToStart.parse(&input))
+            XCTAssertEqual(input, "")
         }
     }
 
     func test_semanticVersion() throws {
-        do {
-            XCTAssertEqual(try Parser.semanticVersion.parse("1.2.3"), .tag(.init(1, 2, 3)))
-        }
-        do {
-            XCTAssertEqual(try? Parser.semanticVersion.parse("1.2.3-b1"), .tag(.init("1.2.3-b1")!))
-        }
+        XCTAssertEqual(try Parser.semanticVersion.parse("1.2.3"), .tag(.init(1, 2, 3)))
+        XCTAssertEqual(try Parser.semanticVersion.parse("1.2.3-b1"), .tag(.init("1.2.3-b1")!))
     }
 
     func test_revision() throws {
-        do {
-            XCTAssertEqual(try Parser.revision.parse("main"), .branch("main"))
-        }
+        XCTAssertEqual(try Parser.revision.parse("main"), .branch("main"))
     }
 
     func test_newPackage() throws {

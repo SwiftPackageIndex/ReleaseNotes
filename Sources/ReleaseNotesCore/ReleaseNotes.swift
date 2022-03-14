@@ -40,7 +40,7 @@ struct ReleaseNotes: AsyncParsableCommand {
             updates = try Parser.packageUpdate.parse(output)
         } catch {
             print("Failed to parse results from package update.\n")
-            print("Please file an issue with the the output above.")
+            print("Please file an issue with the the error output.")
             throw error
         }
 
