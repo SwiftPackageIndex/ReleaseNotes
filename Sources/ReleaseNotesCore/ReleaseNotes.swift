@@ -35,10 +35,13 @@ struct ReleaseNotes: AsyncParsableCommand {
             return
         }
 
-        guard let updates = Parser.packageUpdate.parse(output) else {
+        let updates: [Update]
+        do {
+            updates = try Parser.packageUpdate.parse(output)
+        } catch {
             print("Failed to parse results from package update.\n")
             print("Please file an issue with the the output above.")
-            return
+            throw error
         }
 
         guard !updates.isEmpty else {

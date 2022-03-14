@@ -18,78 +18,88 @@ import SemanticVersion
 
 enum Parser {
 
-    static let dependencyStart = Int.parser().skip(" dependenc")
+    static let dependencyStart = Parse {
+        Int.parser()
+        Skip { " dependenc" }
+    }
     
-    static let progressLine = Not(dependencyStart).skip(PrefixThrough("\n"))
+    static let progressLine = Parse {
+        Not { dependencyStart }
+        Skip { PrefixThrough("\n") }
+    }
 
-    static let progress = Many(progressLine)
+    static let progress = Many { progressLine }
 
-    static let dependencyCount = Int.parser()
-        .skip(
-            " dependency has changed:"
-                .orElse(" dependencies have changed:")
-                .orElse(" dependencies have changed.")
-        )
-
-    static let semanticVersion = Prefix(while: { $0 != " " })
-        .flatMap { str -> Conditional<Always<Substring, SemanticVersion>, Fail<Substring, SemanticVersion>> in
-            if let s = SemanticVersion.init(String(str)) {
-                return Conditional.first(Always(s))
-            } else {
-                return Conditional.second(Fail())
+    static let dependencyCount = Parse {
+        Int.parser()
+        Skip {
+            OneOf {
+                " dependency has changed:"
+                " dependencies have changed:"
+                " dependencies have changed."
             }
         }
-        .map { Revision.tag($0) }
+    }
 
-    static let revision = semanticVersion
-        .orElse(Prefix { $0 != " " }.map { .branch(String($0)) })
+    static let semanticVersion = Parse(Revision.tag) {
+        Prefix { $0 != " " }
+        .map { (s: Substring) -> String in return String.init(s) }
+        .compactMap(SemanticVersion.init)
+    }
+
+    static let revision = OneOf {
+        semanticVersion
+        Prefix { $0 != " " }
+            .map(String.init)
+            .map(Revision.branch)
+    }
 
     static let newPackageToken: Character = "+"
     static let updatedRevisionToken: Character = "~"
-    static let upToStart = Prefix { $0 != newPackageToken && $0 != updatedRevisionToken }
+    static let upToStart = Parse {
+        Prefix { $0 != newPackageToken && $0 != updatedRevisionToken }
+    }
 
-    static let newPackage = Skip(upToStart)
-        .skip("\(newPackageToken) ")
-        .take(Prefix { $0 != " " }.map(String.init))
-        .skip(Prefix { $0 != "\n" })
-        .map { Update(packageName: $0, oldRevision: nil) }
-
-    static let updatedRevision = Skip(upToStart)
-        .skip("\(updatedRevisionToken) ")
-        .take(Prefix { $0 != " " }.map(String.init))
-        .skip(" ")
-        .take(revision)
-        .skip(" -> ")
-        .skip(Prefix { $0 != "\n" })
-        .map(Update.init(packageName:oldRevision:))
-
-    static let update = updatedRevision.orElse(newPackage)
-
-    static let updates = Many(update, separator: "\n")
-
-    static let packageUpdate = Skip(progress)
-        .skip(Many("\n"))
-        .take(dependencyCount)
-        .take(updates)
-        .map { (count, updates) -> [Update] in
-            assert(updates.count == count)
-            return updates
+    static let newPackage = Parse { Update(packageName: $0, oldRevision: nil) } with: {
+        Skip {
+            upToStart
+            "\(newPackageToken) "
         }
-
-}
-
-
-struct Not<P>: Parsing.Parser where P: Parsing.Parser {
-    let parser: P
-
-    init(_ parser: P) { self.parser = parser }
-
-    func parse(_ input: inout P.Input) -> Void? {
-        let original = input
-        if parser.parse(&input) != nil {
-          input = original
-          return nil
+        Prefix { $0 != " " }.map(String.init)
+        Skip {
+            Prefix { $0 != "\n" }
         }
-        return ()
+    }
+
+    static let updatedRevision = Parse(Update.init(packageName:oldRevision:)) {
+        Skip {
+            upToStart
+            "\(updatedRevisionToken) "
+        }
+        Prefix { $0 != " " }.map(String.init)
+        Skip { " " }
+        revision
+        Skip {
+            " -> "
+            Prefix { $0 != "\n" }
+        }
+    }
+
+    static let update = OneOf {
+        updatedRevision
+        newPackage
+    }
+
+    static let updates = Many(element: { update }, separator: { "\n" })
+
+    static let packageUpdate = Parse { (count, updates) -> [Update] in
+        assert(updates.count == count)
+        return updates
+    } with: {
+        Skip { progress }
+        Skip { Many { "\n" } }
+        dependencyCount
+        updates
+        Skip { Many { "\n" } }
     }
 }
