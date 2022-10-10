@@ -16,7 +16,7 @@ import ArgumentParser
 import Foundation
 
 
-typealias PackageName = String
+typealias PackageId = String
 
 
 struct ReleaseNotes: AsyncParsableCommand {
@@ -25,12 +25,14 @@ struct ReleaseNotes: AsyncParsableCommand {
     var workingDirecory: String = "."
 
     func runAsync() async throws {
-        guard let packageMap = getPackageMap(at: workingDirecory) else {
-            print("Failed to parse Package.resolved in \(workingDirecory).")
+        let path = URL(fileURLWithPath: workingDirecory)
+            .appendingPathComponent("Package.resolved").path
+        guard let packageMap = Self.getPackageMap(at: path) else {
+            print("Failed to parse \(path).")
             return
         }
 
-        guard let output = try runPackageUpdate() else {
+        guard let output = try Self.runPackageUpdate(in: workingDirecory) else {
             print("Package update did not return any changes.")
             return
         }
@@ -51,15 +53,15 @@ struct ReleaseNotes: AsyncParsableCommand {
 
         print("\nRelease notes URLs (updating from):")
         for update in updates {
-            let releasesURL = packageMap[update.packageName]
+            let releasesURL = packageMap[caseIgnoring: update.packageId]
                 .map { $0.absoluteString.droppingGitExtension + "/releases" }
-            ?? "\(update.packageName)"
+            ?? "\(update.packageId)"
             print(releasesURL, "(\(update.oldRevision?.description ?? "new package"))")
         }
     }
 
-    func runPackageUpdate() throws -> String? {
-        let process = updateProcess()
+    static func runPackageUpdate(in workingDirecory: String) throws -> String? {
+        let process = updateProcess(workingDirecory: workingDirecory)
         let pipe = Pipe()
         process.standardOutput = pipe
 
@@ -80,7 +82,7 @@ struct ReleaseNotes: AsyncParsableCommand {
         return stdout
     }
 
-    func updateProcess() -> Process {
+    static func updateProcess(workingDirecory: String) -> Process {
         let process = Process()
         process.executableURL = URL(fileURLWithPath: "/bin/bash")
         process.arguments = [
@@ -90,43 +92,23 @@ struct ReleaseNotes: AsyncParsableCommand {
         return process
     }
 
-    func getPackageMap(at path: String) -> [PackageName: URL]? {
-        //    object:
-        //      pins:
-        //        - package: String
-        //          repositoryURL: URL
-        //          state:
-        //            branch: String?
-        //            revision: CommitHash
-        //            version: SemVer?
-        //        - ...
-        //      version: 1
-        struct PackageResolved: Decodable {
-            var object: Object
-
-            struct Object: Decodable {
-                var pins: [Pin]
-
-                struct Pin: Decodable {
-                    var package: String
-                    var repositoryURL: URL
-                }
-            }
-        }
-
-        let filePath = URL(fileURLWithPath: path)
-            .appendingPathComponent("Package.resolved").path
-        guard FileManager.default.fileExists(atPath: filePath),
-              let json = FileManager.default.contents(atPath: filePath),
+    static func getPackageMap(at path: String) -> [PackageId: URL]? {
+        guard FileManager.default.fileExists(atPath: path),
+              let json = FileManager.default.contents(atPath: path),
               let packageResolved = try? JSONDecoder()
                 .decode(PackageResolved.self, from: json)
         else {
             return nil
         }
 
-        return Dictionary(packageResolved.object.pins
-                            .map { ($0.package, $0.repositoryURL) },
-                          uniquingKeysWith: { first, _ in first })
+        return packageResolved.getPackageMap()
     }
 
+}
+
+
+private extension Dictionary where Key == PackageId, Value == URL {
+    subscript(caseIgnoring packageId: PackageId) -> URL? {
+        first(where: { $0.key.lowercased() == packageId.lowercased() })?.value
+    }
 }

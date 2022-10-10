@@ -93,7 +93,7 @@ final class ParserCoreTests: XCTestCase {
 
     func test_newPackage() throws {
         do {
-            XCTAssertEqual(try Parser.newPackage.parse("+ swift-collections 1.0.2"), .init(packageName: "swift-collections"))
+            XCTAssertEqual(try Parser.newPackage.parse("+ swift-collections 1.0.2"), .init(packageId: "swift-collections"))
         }
         do {
             var input = "~ swift-collections 1.0.2"[...]
@@ -106,45 +106,45 @@ final class ParserCoreTests: XCTestCase {
         do {
             var input = #"~ swift-tools-support-core main -> swift-tools-support-core Revision(identifier: "4afd18e40eb028cd9fbe7342e3f98020ea9fdf1a") main"#[...]
             XCTAssertEqual(try Parser.update.parse(&input),
-                           .init(packageName: "swift-tools-support-core",
+                           .init(packageId: "swift-tools-support-core",
                                  oldRevision: .branch("main")))
         }
         do {
             XCTAssertEqual(try Parser.update.parse(#"~ vapor 4.54.0 -> vapor 4.54.1"#),
-                           .init(packageName: "vapor", oldRevision: .tag(.init(4, 54, 0))))
+                           .init(packageId: "vapor", oldRevision: .tag(.init(4, 54, 0))))
         }
         do {
             XCTAssertEqual(try Parser.update.parse("+ swift-collections 1.0.2"),
-                           .init(packageName: "swift-collections"))
+                           .init(packageId: "swift-collections"))
         }
     }
 
     func test_updates() throws {
         do {
             XCTAssertEqual(try Parser.updates.parse(#"~ vapor 4.54.0 -> vapor 4.54.1"#),
-                           [.init(packageName: "vapor",
+                           [.init(packageId: "vapor",
                                  oldRevision: .tag(.init(4, 54, 0)))])
         }
         do {
             XCTAssertEqual(try Parser.updates.parse("+ swift-collections 1.0.2"),
-                           [.init(packageName: "swift-collections")])
+                           [.init(packageId: "swift-collections")])
         }
         do {
             XCTAssertEqual(try Parser.updates.parse("""
                             ~ vapor 4.54.0 -> vapor 4.54.1
                             + swift-collections 1.0.2
                             """),
-                           [.init(packageName: "vapor",
+                           [.init(packageId: "vapor",
                                   oldRevision: .tag(.init(4, 54, 0))),
-                            .init(packageName: "swift-collections")])
+                            .init(packageId: "swift-collections")])
         }
         do {
             XCTAssertEqual(try Parser.updates.parse("""
                             + swift-collections 1.0.2
                             ~ vapor 4.54.0 -> vapor 4.54.1
                             """),
-                           [.init(packageName: "swift-collections"),
-                            .init(packageName: "vapor",
+                           [.init(packageId: "swift-collections"),
+                            .init(packageId: "vapor",
                                   oldRevision: .tag(.init(4, 54, 0)))])
         }
     }
@@ -163,17 +163,17 @@ final class ParserCoreTests: XCTestCase {
             ~ swift-nio 2.36.0 -> swift-nio 2.37.0
             ~ llbuild main -> llbuild Revision(identifier: "db8311d7d284cae487dff582de980db5a918692f") main
             """), [
-            .init(packageName: "swift-collections"),
-            .init(packageName: "swift-tools-support-core", oldRevision: .branch("main")),
-            .init(packageName: "vapor", oldRevision: .tag(.init(4, 54, 0))),
-            .init(packageName: "swift-nio-ssl", oldRevision: .tag(.init(2, 17, 1))),
-            .init(packageName: "swift-driver", oldRevision: .branch("main")),
-            .init(packageName: "fluent-kit", oldRevision: .tag(.init(1, 19, 0))),
-            .init(packageName: "async-kit", oldRevision: .tag(.init(1, 11, 0))),
-            .init(packageName: "swift-nio-transport-services", oldRevision: .tag(.init(1, 11, 3))),
-            .init(packageName: "SwiftPM", oldRevision: .branch("main")),
-            .init(packageName: "swift-nio", oldRevision: .tag(.init(2, 36, 0))),
-            .init(packageName: "llbuild", oldRevision: .branch("main")),
+            .init(packageId: "swift-collections"),
+            .init(packageId: "swift-tools-support-core", oldRevision: .branch("main")),
+            .init(packageId: "vapor", oldRevision: .tag(.init(4, 54, 0))),
+            .init(packageId: "swift-nio-ssl", oldRevision: .tag(.init(2, 17, 1))),
+            .init(packageId: "swift-driver", oldRevision: .branch("main")),
+            .init(packageId: "fluent-kit", oldRevision: .tag(.init(1, 19, 0))),
+            .init(packageId: "async-kit", oldRevision: .tag(.init(1, 11, 0))),
+            .init(packageId: "swift-nio-transport-services", oldRevision: .tag(.init(1, 11, 3))),
+            .init(packageId: "SwiftPM", oldRevision: .branch("main")),
+            .init(packageId: "swift-nio", oldRevision: .tag(.init(2, 36, 0))),
+            .init(packageId: "llbuild", oldRevision: .branch("main")),
         ])
     }
 

@@ -60,7 +60,7 @@ enum Parser {
         Prefix { $0 != newPackageToken && $0 != updatedRevisionToken }
     }
 
-    static let newPackage = Parse { Update(packageName: $0, oldRevision: nil) } with: {
+    static let newPackage = Parse { Update(packageId: $0, oldRevision: nil) } with: {
         Skip {
             upToStart
             "\(newPackageToken) "
@@ -71,7 +71,7 @@ enum Parser {
         }
     }
 
-    static let updatedRevision = Parse(Update.init(packageName:oldRevision:)) {
+    static let updatedRevision = Parse(Update.init(packageId:oldRevision:)) {
         Skip {
             upToStart
             "\(updatedRevisionToken) "
