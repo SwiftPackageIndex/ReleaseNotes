@@ -42,7 +42,6 @@ enum PackageResolved {
         }
     }
 
-    //    object:
     //    pins:
     //      - identity: String
     //        location: URL
