@@ -107,7 +107,7 @@ struct ReleaseNotes: AsyncParsableCommand {
 }
 
 
-private extension [PackageId: URL] {
+private extension Dictionary where Key == PackageId, Value == URL {
     subscript(caseIgnoring packageId: PackageId) -> URL? {
         first(where: { $0.key.lowercased() == packageId.lowercased() })?.value
     }
