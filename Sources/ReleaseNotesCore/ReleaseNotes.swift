@@ -25,8 +25,10 @@ struct ReleaseNotes: AsyncParsableCommand {
     var workingDirecory: String = "."
 
     func runAsync() async throws {
-        guard let packageMap = Self.getPackageMap(at: workingDirecory) else {
-            print("Failed to parse Package.resolved in \(workingDirecory).")
+        let path = URL(fileURLWithPath: workingDirecory)
+            .appendingPathComponent("Package.resolved").path
+        guard let packageMap = Self.getPackageMap(at: path) else {
+            print("Failed to parse \(path).")
             return
         }
 
@@ -90,54 +92,16 @@ struct ReleaseNotes: AsyncParsableCommand {
         return process
     }
 
-//    static func decodePackageResolved(at url: URL) -> [PackageId: URL]? {
-//        //    object:
-//        //      pins:
-//        //        - package: String
-//        //          repositoryURL: URL
-//        //          state:
-//        //            branch: String?
-//        //            revision: CommitHash
-//        //            version: SemVer?
-//        //        - ...
-//        //      version: 1
-//        struct PackageResolvedV1: Decodable {
-//            var object: Object
-//
-//            struct Object: Decodable {
-//                var pins: [Pin]
-//
-//                struct Pin: Decodable {
-//                    var package: String
-//                    var repositoryURL: URL
-//                }
-//            }
-//        }
-//
-//        guard FileManager.default.fileExists(atPath: url.path),
-//              let json = FileManager.default.contents(atPath: url.path),
-//              let packageResolved = try? JSONDecoder()
-//            .decode(PackageResolvedV1.self, from: json)
-//        else {
-//            return nil
-//        }
-//    }
-
     static func getPackageMap(at path: String) -> [PackageId: URL]? {
-        let filePath = URL(fileURLWithPath: path)
-            .appendingPathComponent("Package.resolved").path
-        guard FileManager.default.fileExists(atPath: filePath),
-              let json = FileManager.default.contents(atPath: filePath),
+        guard FileManager.default.fileExists(atPath: path),
+              let json = FileManager.default.contents(atPath: path),
               let packageResolved = try? JSONDecoder()
                 .decode(PackageResolved.self, from: json)
         else {
             return nil
         }
 
-//        return Dictionary(packageResolved.object.pins
-//                            .map { ($0.package, $0.repositoryURL) },
-//                          uniquingKeysWith: { first, _ in first })
-        return [:]
+        return packageResolved.getPackageMap()
     }
 
 }

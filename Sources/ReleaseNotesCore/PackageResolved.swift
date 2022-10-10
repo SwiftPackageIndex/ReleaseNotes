@@ -83,6 +83,23 @@ extension PackageResolved {
 }
 
 
+extension PackageResolved {
+    func getPackageMap() -> [PackageId: URL] {
+        switch self {
+            case let .v1(value):
+                return Dictionary(value.object.pins
+                    .map { ($0.package, $0.repositoryURL) },
+                                  uniquingKeysWith: { first, _ in first })
+
+            case let .v2(value):
+                return Dictionary(value.pins
+                    .map { ($0.identity, $0.location) },
+                                  uniquingKeysWith: { first, _ in first })
+        }
+    }
+}
+
+
 extension PackageResolved: Decodable {
     init(from decoder: Decoder) throws {
         if let value = try? decoder.singleValueContainer().decode(V1.self) {

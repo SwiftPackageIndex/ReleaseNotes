@@ -25,4 +25,11 @@ final class ReleaseNotesCoreTests: XCTestCase {
         XCTAssertEqual(map?.count, 3)
     }
 
+    func test_getPackageMap_v2() throws {
+        let path = fixtureUrl(for: "Package.resolved-v2.json").path
+        let map = ReleaseNotes.getPackageMap(at: path)
+
+        XCTAssertEqual(map?.count, 5)
+    }
+
 }
