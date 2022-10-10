@@ -49,3 +49,26 @@ final class PackageResolvedTests: XCTestCase {
     }
 
 }
+
+
+private extension PackageResolved {
+    var v1: V1? {
+        switch self {
+            case let .v1(value):
+                return value
+            case .v2:
+                return nil
+        }
+    }
+
+    var v2: V2? {
+        switch self {
+            case .v1:
+                return nil
+            case let .v2(value):
+                return value
+        }
+    }
+}
+
+
