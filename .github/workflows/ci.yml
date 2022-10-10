@@ -24,7 +24,8 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [macos-11, ubuntu-20.04]
+        # https://github.com/actions/virtual-environments
+        os: [macos-12, macos-11, ubuntu-20.04]
 
     runs-on: ${{ matrix.os }}
     env:
