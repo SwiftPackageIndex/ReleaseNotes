@@ -25,14 +25,11 @@ let package = Package(
         .executable(name: "swift-release-notes", targets: ["swift-release-notes"]),
     ],
     dependencies: [
-        .package(name: "SemanticVersion",
-                 url: "https://github.com/SwiftPackageIndex/SemanticVersion",
+        .package(url: "https://github.com/SwiftPackageIndex/SemanticVersion",
                  from: "0.3.1"),
-        .package(name: "swift-argument-parser",
-                 url: "https://github.com/apple/swift-argument-parser",
+        .package(url: "https://github.com/apple/swift-argument-parser",
                  from: "1.0.0"),
-        .package(name: "swift-parsing",
-                 url: "https://github.com/pointfreeco/swift-parsing",
+        .package(url: "https://github.com/pointfreeco/swift-parsing",
                  from: "0.4.1"),
     ],
     targets: [
