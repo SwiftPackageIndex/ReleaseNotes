@@ -32,4 +32,13 @@ final class ReleaseNotesCoreTests: XCTestCase {
         XCTAssertEqual(map?.count, 5)
     }
 
+    func test_Dictionary_subscript_caseInsensitive() throws {
+        let d = [
+            PackageId("foo"): URL(string: "1")!,
+            PackageId("bar"): URL(string: "2")!,
+        ]
+        XCTAssertEqual(d[caseInsensitive: "foo"], URL(string: "1")!)
+        XCTAssertEqual(d[caseInsensitive: "Foo"], URL(string: "1")!)
+    }
+
 }

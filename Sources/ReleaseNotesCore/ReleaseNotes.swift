@@ -53,7 +53,7 @@ struct ReleaseNotes: AsyncParsableCommand {
 
         print("\nRelease notes URLs (updating from):")
         for update in updates {
-            let releasesURL = packageMap[caseIgnoring: update.packageId]
+            let releasesURL = packageMap[caseInsensitive: update.packageId]
                 .map { $0.absoluteString.droppingGitExtension + "/releases" }
             ?? "\(update.packageId)"
             print(releasesURL, "(\(update.oldRevision?.description ?? "new package"))")
@@ -104,11 +104,4 @@ struct ReleaseNotes: AsyncParsableCommand {
         return packageResolved.getPackageMap()
     }
 
-}
-
-
-private extension Dictionary where Key == PackageId, Value == URL {
-    subscript(caseIgnoring packageId: PackageId) -> URL? {
-        first(where: { $0.key.lowercased() == packageId.lowercased() })?.value
-    }
 }
