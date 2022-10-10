@@ -1,0 +1,35 @@
+{
+  "object": {
+    "pins": [
+      {
+        "package": "SemanticVersion",
+        "repositoryURL": "https://github.com/SwiftPackageIndex/SemanticVersion",
+        "state": {
+          "branch": null,
+          "revision": "97f2bd0551cde27717c5ab7b88e23d392e96452b",
+          "version": "0.3.1"
+        }
+      },
+      {
+        "package": "swift-argument-parser",
+        "repositoryURL": "https://github.com/apple/swift-argument-parser",
+        "state": {
+          "branch": null,
+          "revision": "e1465042f195f374b94f915ba8ca49de24300a0d",
+          "version": "1.0.2"
+        }
+      },
+      {
+        "package": "swift-parsing",
+        "repositoryURL": "https://github.com/pointfreeco/swift-parsing",
+        "state": {
+          "branch": null,
+          "revision": "1d3aa2f359388b67c16000556830645382cd5c4f",
+          "version": "0.8.0"
+        }
+      }
+    ]
+  },
+  "version": 1
+}
+

@@ -12,15 +12,21 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-struct Update: CustomStringConvertible, Equatable {
-    var packageId: PackageId
-    var oldRevision: Revision?
+import Foundation
 
-    var description: String {
-        if let oldRevision = oldRevision {
-            return "\(packageId) @ \(oldRevision)"
-        } else {
-            return "\(packageId) (new package)"
-        }
-    }
+
+func fixtureData(for fixture: String) throws -> Data {
+    try Data(contentsOf: fixtureUrl(for: fixture))
+}
+
+
+func fixtureUrl(for fixture: String) -> URL {
+    fixturesDirectory().appendingPathComponent(fixture)
+}
+
+
+func fixturesDirectory(path: String = #file) -> URL {
+    let url = URL(fileURLWithPath: path)
+    let testsDir = url.deletingLastPathComponent()
+    return testsDir.appendingPathComponent("Fixtures")
 }

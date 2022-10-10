@@ -12,15 +12,17 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-struct Update: CustomStringConvertible, Equatable {
-    var packageId: PackageId
-    var oldRevision: Revision?
+@testable import ReleaseNotesCore
+import XCTest
 
-    var description: String {
-        if let oldRevision = oldRevision {
-            return "\(packageId) @ \(oldRevision)"
-        } else {
-            return "\(packageId) (new package)"
-        }
+
+final class ReleaseNotesCoreTests: XCTestCase {
+
+    func test_getPackageMap_v1() throws {
+        let path = fixtureUrl(for: "Package.resolved-v1.json").path
+        let map = ReleaseNotes.getPackageMap(at: path)
+
+        XCTAssertEqual(map?.count, 3)
     }
+
 }

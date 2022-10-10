@@ -16,7 +16,7 @@ import ArgumentParser
 import Foundation
 
 
-typealias PackageName = String
+typealias PackageId = String
 
 
 struct ReleaseNotes: AsyncParsableCommand {
@@ -25,7 +25,7 @@ struct ReleaseNotes: AsyncParsableCommand {
     var workingDirecory: String = "."
 
     func runAsync() async throws {
-        guard let packageMap = getPackageMap(at: workingDirecory) else {
+        guard let packageMap = Self.getPackageMap(at: workingDirecory) else {
             print("Failed to parse Package.resolved in \(workingDirecory).")
             return
         }
@@ -51,9 +51,9 @@ struct ReleaseNotes: AsyncParsableCommand {
 
         print("\nRelease notes URLs (updating from):")
         for update in updates {
-            let releasesURL = packageMap[update.packageName]
+            let releasesURL = packageMap[caseIgnoring: update.packageId]
                 .map { $0.absoluteString.droppingGitExtension + "/releases" }
-            ?? "\(update.packageName)"
+            ?? "\(update.packageId)"
             print(releasesURL, "(\(update.oldRevision?.description ?? "new package"))")
         }
     }
@@ -90,30 +90,40 @@ struct ReleaseNotes: AsyncParsableCommand {
         return process
     }
 
-    func getPackageMap(at path: String) -> [PackageName: URL]? {
-        //    object:
-        //      pins:
-        //        - package: String
-        //          repositoryURL: URL
-        //          state:
-        //            branch: String?
-        //            revision: CommitHash
-        //            version: SemVer?
-        //        - ...
-        //      version: 1
-        struct PackageResolved: Decodable {
-            var object: Object
+//    static func decodePackageResolved(at url: URL) -> [PackageId: URL]? {
+//        //    object:
+//        //      pins:
+//        //        - package: String
+//        //          repositoryURL: URL
+//        //          state:
+//        //            branch: String?
+//        //            revision: CommitHash
+//        //            version: SemVer?
+//        //        - ...
+//        //      version: 1
+//        struct PackageResolvedV1: Decodable {
+//            var object: Object
+//
+//            struct Object: Decodable {
+//                var pins: [Pin]
+//
+//                struct Pin: Decodable {
+//                    var package: String
+//                    var repositoryURL: URL
+//                }
+//            }
+//        }
+//
+//        guard FileManager.default.fileExists(atPath: url.path),
+//              let json = FileManager.default.contents(atPath: url.path),
+//              let packageResolved = try? JSONDecoder()
+//            .decode(PackageResolvedV1.self, from: json)
+//        else {
+//            return nil
+//        }
+//    }
 
-            struct Object: Decodable {
-                var pins: [Pin]
-
-                struct Pin: Decodable {
-                    var package: String
-                    var repositoryURL: URL
-                }
-            }
-        }
-
+    static func getPackageMap(at path: String) -> [PackageId: URL]? {
         let filePath = URL(fileURLWithPath: path)
             .appendingPathComponent("Package.resolved").path
         guard FileManager.default.fileExists(atPath: filePath),
@@ -124,9 +134,17 @@ struct ReleaseNotes: AsyncParsableCommand {
             return nil
         }
 
-        return Dictionary(packageResolved.object.pins
-                            .map { ($0.package, $0.repositoryURL) },
-                          uniquingKeysWith: { first, _ in first })
+//        return Dictionary(packageResolved.object.pins
+//                            .map { ($0.package, $0.repositoryURL) },
+//                          uniquingKeysWith: { first, _ in first })
+        return [:]
     }
 
+}
+
+
+private extension [PackageId: URL] {
+    subscript(caseIgnoring packageId: PackageId) -> URL? {
+        first(where: { $0.key.lowercased() == packageId.lowercased() })?.value
+    }
 }
