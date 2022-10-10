@@ -32,7 +32,7 @@ struct ReleaseNotes: AsyncParsableCommand {
             return
         }
 
-        guard let output = try runPackageUpdate() else {
+        guard let output = try Self.runPackageUpdate(in: workingDirecory) else {
             print("Package update did not return any changes.")
             return
         }
@@ -60,8 +60,8 @@ struct ReleaseNotes: AsyncParsableCommand {
         }
     }
 
-    func runPackageUpdate() throws -> String? {
-        let process = updateProcess()
+    static func runPackageUpdate(in workingDirecory: String) throws -> String? {
+        let process = updateProcess(workingDirecory: workingDirecory)
         let pipe = Pipe()
         process.standardOutput = pipe
 
@@ -82,7 +82,7 @@ struct ReleaseNotes: AsyncParsableCommand {
         return stdout
     }
 
-    func updateProcess() -> Process {
+    static func updateProcess(workingDirecory: String) -> Process {
         let process = Process()
         process.executableURL = URL(fileURLWithPath: "/bin/bash")
         process.arguments = [
