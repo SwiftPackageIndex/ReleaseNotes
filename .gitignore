@@ -7,3 +7,5 @@ DerivedData/
 .swiftpm/xcode/package.xcworkspace/contents.xcworkspacedata
 .vscode/
 .swiftpm/xcode/xcshareddata/xcschemes/spi-release-notes.xcscheme
+.swiftpm/
+.devcontainer/
