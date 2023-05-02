@@ -47,7 +47,8 @@ let package = Package(
         ),
         .testTarget(
             name: "ReleaseNotesTests",
-            dependencies: ["ReleaseNotesCore"]
+            dependencies: ["ReleaseNotesCore"],
+            exclude: ["Fixtures"]
         ),
     ]
 )
