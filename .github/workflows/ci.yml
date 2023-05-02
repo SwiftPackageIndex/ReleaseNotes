@@ -21,7 +21,7 @@ on:
     branches: [ main ]
 
 jobs:
-  build-macos:
+  macos:
     strategy:
       fail-fast: false
       matrix:
@@ -30,76 +30,32 @@ jobs:
     runs-on: ${{ matrix.os }}
     steps:
     - uses: actions/checkout@v2
-    - name: Release Build
-      run: make build
-
-  test-macos:
-    strategy:
-      fail-fast: false
-      matrix:
-        # https://github.com/actions/virtual-environments
-        os: [macos-12, macos-11]
-    runs-on: ${{ matrix.os }}
-    steps:
-    - uses: actions/checkout@v2
     - name: Test
       run: make test
-
-  install-macos:
-    strategy:
-      fail-fast: false
-      matrix:
-        # https://github.com/actions/virtual-environments
-        os: [macos-12, macos-11]
-    runs-on: ${{ matrix.os }}
-    steps:
-    - uses: actions/checkout@v2
+    - name: Build for release
+      run: make build
     - name: Install
       run: env prefix=/tmp make install
     - name: Uninstall
       run: env prefix=/tmp make uninstall
 
-  build-linux:
-        strategy:
-          fail-fast: false
-          matrix:
-            image: ['swift:5.7-focal', 'swift:5.8-focal']
-        runs-on: ubuntu-latest
-        container:
-          image: ${{ matrix.image }}
-        steps:
-        - uses: actions/checkout@v2
-        - run: apt-get -y update && apt-get install make
-        - name: Release Build
-          run: make build
-
-  test-linux:
-        strategy:
-          fail-fast: false
-          matrix:
-            image: ['swift:5.7-focal', 'swift:5.8-focal']
-        runs-on: ubuntu-latest
-        container:
-          image: ${{ matrix.image }}
-        steps:
-        - uses: actions/checkout@v2
-        - run: apt-get -y update && apt-get install make
-        - name: Test
-          run: make test
-
-  install-linux:
-        strategy:
-          fail-fast: false
-          matrix:
-            image: ['swift:5.7-focal', 'swift:5.8-focal']
-        runs-on: ubuntu-latest
-        container:
-          image: ${{ matrix.image }}
-        steps:
-        - uses: actions/checkout@v2
-        - run: apt-get -y update && apt-get install make
-        - name: Install
-          run: env prefix=/tmp make install
-        - name: Uninstall
-          run: env prefix=/tmp make uninstall
+  linux:
+    strategy:
+      fail-fast: false
+      matrix:
+        image: ['swift:5.7-focal', 'swift:5.8-focal']
+    runs-on: ubuntu-latest
+    container:
+      image: ${{ matrix.image }}
+    steps:
+    - uses: actions/checkout@v2
+    - run: apt-get -y update && apt-get install make
+    - name: Test
+      run: make test
+    - name: Build for release
+      run: make build
+    - name: Install
+      run: env prefix=/tmp make install
+    - name: Uninstall
+      run: env prefix=/tmp make uninstall
   
