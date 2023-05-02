@@ -28,9 +28,7 @@ let package = Package(
         .package(url: "https://github.com/SwiftPackageIndex/SemanticVersion",
                  from: "0.3.1"),
         .package(url: "https://github.com/apple/swift-argument-parser",
-                 from: "1.0.0"),
-        .package(url: "https://github.com/pointfreeco/swift-parsing",
-                 from: "0.4.1"),
+                 from: "1.0.0")
     ],
     targets: [
         .executableTarget(
@@ -52,3 +50,13 @@ let package = Package(
         ),
     ]
 )
+
+#if compiler(<5.8)
+package.dependencies.append(
+    .package(url: "https://github.com/pointfreeco/swift-parsing", revision: "0.11.0")
+)
+#else
+package.dependencies.append(
+    .package(url: "https://github.com/pointfreeco/swift-parsing", from: "0.12.0")
+)
+#endif
