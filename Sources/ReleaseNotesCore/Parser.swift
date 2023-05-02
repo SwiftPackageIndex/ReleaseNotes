@@ -18,7 +18,7 @@ import SemanticVersion
 
 enum Parser {
 
-    static let dependencyStart = Parse {
+    static let dependencyStart = Parse(input: Substring.self) {
         Int.parser()
         Skip { " dependenc" }
     }
@@ -30,7 +30,7 @@ enum Parser {
 
     static let progress = Many { progressLine }
 
-    static let dependencyCount = Parse {
+    static let dependencyCount = Parse(input: Substring.self) {
         Int.parser()
         Skip {
             OneOf {
@@ -56,7 +56,7 @@ enum Parser {
 
     static let newPackageToken: Character = "+"
     static let updatedRevisionToken: Character = "~"
-    static let upToStart = Parse {
+    static let upToStart = Parse(input: Substring.self) {
         Prefix { $0 != newPackageToken && $0 != updatedRevisionToken }
     }
 
@@ -92,14 +92,15 @@ enum Parser {
 
     static let updates = Many(element: { update }, separator: { "\n" })
 
-    static let packageUpdate = Parse { (count, updates) -> [Update] in
-        assert(updates.count == count)
-        return updates
-    } with: {
+    static let packageUpdate = Parse {
         Skip { progress }
         Skip { Many { "\n" } }
         dependencyCount
         updates
         Skip { Many { "\n" } }
+    }.map { (count: Int, updates: [Update]) in
+        assert(updates.count == count)
+        return updates
     }
+
 }
